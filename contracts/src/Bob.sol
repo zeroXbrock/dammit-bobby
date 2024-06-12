@@ -2,19 +2,23 @@
 pragma solidity ^0.8.19;
 
 import {Suave} from "suave-std/suavelib/Suave.sol";
+import {Suapp} from "suave-std/Suapp.sol";
+import {EthJsonRPC} from "suave-std/protocols/EthJsonRPC.sol";
 import "suave-std/Transactions.sol";
 import {IYakRouter, FormattedOffer, Trade} from "./libs/IYakRouter.sol";
 
 /// Can we arb it? Yes we can!
-contract BobTheBuilder {
+contract BobTheBuilder is Suapp {
     address immutable yakRouter = 0x1234567890123456789012345678901234567890; // TODO: correct address
+
+    event ArbsFound(bytes[] signedTxs);
 
     modifier confidential() {
         require(Suave.isConfidential(), "must run confidentially");
         _;
     }
 
-    function signerKey() internal view returns (string memory) {
+    function signerKey() internal pure returns (string memory) {
         // TODO: get this from ConfStore
         return string(abi.encodePacked(bytes32(0)));
     }
@@ -34,7 +38,7 @@ contract BobTheBuilder {
     /// "Bubble sort, cuz why not"
     function bubbleSort(
         FormattedOffer[] memory arr
-    ) public pure returns (FormattedOffer[] memory) {
+    ) internal pure returns (FormattedOffer[] memory) {
         uint n = arr.length;
         for (uint i = 0; i < n - 1; i++) {
             for (uint j = 0; j < n - i - 1; j++) {
@@ -96,13 +100,16 @@ contract BobTheBuilder {
         return nonEmptyOffers;
     }
 
-    function optimalAmountIn(address token) public view returns (uint256) {
+    function optimalAmountIn(address token) internal pure returns (uint256) {
         // TODO: solve for this using quadratic search or something similar
+        token; // silence unused var warning
         return 1 ether;
     }
 
     /// Pull block from confidential store & check yakswap for arbs.
-    function findArbs(address recipient) public confidential {
+    function findArbs(
+        address recipient
+    ) public confidential returns (bytes memory) {
         // TODO: pull this from CStore
         address[] memory tokensToCheck = new address[](3);
         tokensToCheck[0] = 0x58c65450e9Ea4C8F527534De6762a940F5D8B7aA;
@@ -113,10 +120,14 @@ contract BobTheBuilder {
             tokensToCheck.length
         );
 
+        EthJsonRPC eth = new EthJsonRPC(
+            "https://ethereum-holesky-rpc.publicnode.com"
+        );
+
         // find possible arbs
         for (uint256 i = 0; i < tokensToCheck.length; i++) {
             address token = tokensToCheck[i];
-            bytes memory res = Suave.ethcall(
+            bytes memory res = eth.call(
                 yakRouter,
                 abi.encodeWithSelector(
                     /* findBestPath(
@@ -129,9 +140,10 @@ contract BobTheBuilder {
                     optimalAmountIn(token),
                     token,
                     token,
-                    5
+                    3
                 )
             );
+
             FormattedOffer memory offer = abi.decode(res, (FormattedOffer));
             arbOffers[i] = offer;
         }
@@ -179,7 +191,7 @@ contract BobTheBuilder {
                 gas: 500000,
                 gasPrice: 69 gwei,
                 chainId: 17000, // hardcoded for holesky, TODO: make dynamic
-                nonce: 0 // TODO: get this from ConfStore
+                nonce: 0 // TODO: get this from reliable source
             });
             Transactions.EIP155 memory signedTxn = Transactions.signTxn(
                 req,
@@ -188,6 +200,11 @@ contract BobTheBuilder {
             signedArbs[i] = signedTxn;
         }
 
-        // send arbs
+        // "send arbs"
+        return abi.encodeWithSelector(this.onFindArbs.selector, signedArbs);
+    }
+
+    function onFindArbs(bytes[] memory signedArbs) public confidential {
+        emit ArbsFound(signedArbs);
     }
 }
