@@ -9,9 +9,9 @@ import {IYakRouter, FormattedOffer, Trade} from "./libs/IYakRouter.sol";
 
 /// Can we arb it? Yes we can!
 contract BobTheBuilder is Suapp {
-    address immutable yakRouter = 0x1234567890123456789012345678901234567890; // TODO: correct address
+    address immutable yakRouter = 0x985d014DA6e6C781ec3FF77E8Fd48c30174F3d96;
 
-    event ArbsFound(bytes[] signedTxs);
+    event ArbsFound(Transactions.EIP155[] signedTxs);
 
     modifier confidential() {
         require(Suave.isConfidential(), "must run confidentially");
@@ -20,7 +20,8 @@ contract BobTheBuilder is Suapp {
 
     function signerKey() internal pure returns (string memory) {
         // TODO: get this from ConfStore
-        return string(abi.encodePacked(bytes32(0)));
+        return
+            "0x91ab9a7e53c220e6210460b65a7a3bb2ca181412a8a7b43ff336b3df1737ce12";
     }
 
     function profit(
@@ -183,7 +184,7 @@ contract BobTheBuilder is Suapp {
                 recipient,
                 0
             );
-            // bytes memory simRes = Suave.ethcall(yakRouter, swapCalldata);
+
             Transactions.EIP155Request memory req = Transactions.EIP155Request({
                 to: yakRouter,
                 data: swapCalldata,
@@ -201,10 +202,11 @@ contract BobTheBuilder is Suapp {
         }
 
         // "send arbs"
+        emit ArbsFound(signedArbs);
         return abi.encodeWithSelector(this.onFindArbs.selector, signedArbs);
     }
 
-    function onFindArbs(bytes[] memory signedArbs) public confidential {
-        emit ArbsFound(signedArbs);
-    }
+    function onFindArbs(
+        Transactions.EIP155[] memory signedArbs
+    ) public emitOffchainLogs {}
 }
