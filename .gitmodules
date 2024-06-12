@@ -1,0 +1,3 @@
+[submodule "contracts/lib/suave-std"]
+	path = contracts/lib/suave-std
+	url = https://github.com/flashbots/suave-std
