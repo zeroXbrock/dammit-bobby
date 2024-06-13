@@ -144,4 +144,4 @@ echo "{
     \"pairAB\": \"$pair_AB\",
     \"pairAC\": \"$pair_AC\",
     \"pairBC\": \"$pair_BC\"
-}" > ../deployment-$(date +%s).json
+}" > ../deployment-test.json
