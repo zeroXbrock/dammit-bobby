@@ -12,6 +12,6 @@ contract Token is ERC20 {
             string(abi.encodePacked("Token", tokenLetter))
         )
     {
-        _mint(msg.sender, 100 ether);
+        _mint(msg.sender, 1000000000 ether);
     }
 }
