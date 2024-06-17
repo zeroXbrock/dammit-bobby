@@ -59,9 +59,13 @@ contract BobTheBuilder is Suapp {
     }
 
     function constructArbTx(FormattedOffer memory offer, TransactionOverrides memory overrides) public returns (Transactions.EIP155 memory signedTx) {
+        signedTx = constructSwapTx(offer.toTrade(), overrides);
+    }
+
+    function constructSwapTx(Trade memory trade, TransactionOverrides memory overrides) public returns (Transactions.EIP155 memory signedTx) {
         bytes memory swapCalldata = abi.encodeWithSelector(
             IYakRouter.swapNoSplit.selector,
-            offer.toTrade(),
+            trade,
             signerAddress,
             0
         );
