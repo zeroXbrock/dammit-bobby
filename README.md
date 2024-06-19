@@ -2,7 +2,7 @@
 
 POC of bottom of the block arbitrage using YakSwap on SUAVE.
 
-![yakswap<>suave](./assets/yak_fb.png)
+<img width="500" alt="image" src="https://github.com/zeroXbrock/dammit-bobby/assets/46010359/38f7b0ff-7deb-482a-90b5-b64ad1c30535">
 
 ## Requirements 
 
