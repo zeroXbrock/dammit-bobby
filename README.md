@@ -34,6 +34,11 @@ Run end-to-end test:
 forge test --match-test test_run --ffi -vv
 ```
 
+Example output: 
+
+<img width="513" alt="image" src="https://github.com/zeroXbrock/dammit-bobby/assets/46010359/65f092b2-9091-4710-8076-b371cf73ec5e">
+
+
 ## Contributing
 
 Feel free to contribute by opening an issue or a pull request.
