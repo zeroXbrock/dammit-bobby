@@ -4,12 +4,23 @@
 # factoryAddr=0xA055ED7b2e3aE933E2Ca4bD8655A65079B5A26aB
 echo "The factory is at $factoryAddr"
 
+if [ $# -lt 2 ]; then
+    echo "Missing arguments"
+    exit 1
+fi
+
+RPC_URL=$1
+FACTORY_ADDR=$2
+PRVKEY=$3
+ROUTER=$4
+echo "RPC_URL: $RPC_URL"
+echo "FACTORY_ADDR: $FACTORY_ADDR"
+echo "PRVKEY: $PRVKEY"
+echo "ROUTER: $ROUTER"
+
 # suave admin default
-# PRVKEY=91ab9a7e53c220e6210460b65a7a3bb2ca181412a8a7b43ff336b3df1737ce12
 # anvil[0]
-PRVKEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 walletAddr=$(cast wallet address $PRVKEY)
-RPC_URL=http://localhost:8555
 echo "Connected to RPC: $RPC_URL"
 
 ### deployFactory deploys a factory contract.
@@ -94,6 +105,22 @@ provisionLiquidity() {
     echo "Minted LP tokens on $pairAddr"
 }
 
+approveMaxTokensToRouter() {
+    token=$1
+    echo "Approving max tokens to router for $token"
+    amount=115792089237316195423570985008687907853269984665640564039457584007913129639935
+    status=$(cast send -r $RPC_URL --private-key "$PRVKEY" $token "approve(address,uint256)" $ROUTER $amount | jq .status)
+    assertOkStatus "$status"
+}
+
+routerWhitelistTokens() {
+    tokens=$1
+    echo "Whitelisting tokens on router for $tokens"
+    status=$(cast send -r $RPC_URL --private-key "$PRVKEY" $ROUTER "setTrustedTokens(address[])" $tokens | jq .status)
+    assertOkStatus "$status"
+}
+
+
 # create new tokens
 echo "Creating tokens..."
 deployToken "A"
@@ -135,6 +162,14 @@ provisionLiquidity $tokenA $tokenB $pair_AB '500 ether' '50 ether'
 provisionLiquidity $tokenA $tokenC $pair_AC '500 ether' '50 ether'
 provisionLiquidity $tokenB $tokenC $pair_BC '500 ether' '50 ether'
 
+echo "approving tokens"
+approveMaxTokensToRouter $tokenA
+approveMaxTokensToRouter $tokenB
+approveMaxTokensToRouter $tokenC
+
+echo "whitelisting tokens"
+routerWhitelistTokens "[$tokenA, $tokenB, $tokenC]"
+
 # write results to deployment-{timestamp}.json
 echo "{
     \"v2Factory\": \"$factoryAddr\",
@@ -144,4 +179,4 @@ echo "{
     \"pairAB\": \"$pair_AB\",
     \"pairAC\": \"$pair_AC\",
     \"pairBC\": \"$pair_BC\"
-}" > ../deployment-$(date +%s).json
+}" > ../deployment-test.json
