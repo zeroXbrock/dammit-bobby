@@ -15,13 +15,10 @@ POC of bottom of the block arbitrage using YakSwap on SUAVE.
 
 Consult [SUAVE docs](https://suave-alpha.flashbots.net/) to set up local SUAVE network and connect it to the builder node (suave-execution-geth).
 
-Instead of using vanilla suave-execution-geth, this repo uses a forked version of it, namely `https://github.com/eden-network/suave-execution-geth`.
+Instead of using vanilla suave-execution-geth, this repo uses a forked version of it: [suave-execution-geth](https://github.com/eden-network/suave-execution-geth).
 
-### Install Forge dependencies
-
-```bash
-git submodule update
-```
+### Forge dependencies
+Make sure fork of `suave-std` is installed: [suave-std](https://github.com/halo3mic/suave-std). 
 
 ### Trading account
 
