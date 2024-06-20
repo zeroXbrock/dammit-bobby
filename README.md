@@ -17,9 +17,6 @@ Consult [SUAVE docs](https://suave-alpha.flashbots.net/) to set up local SUAVE n
 
 Instead of using vanilla suave-execution-geth, this repo uses a forked version of it: [suave-execution-geth](https://github.com/eden-network/suave-execution-geth).
 
-### Forge dependencies
-Make sure fork of `suave-std` is installed: [suave-std](https://github.com/halo3mic/suave-std). 
-
 ### Trading account
 
 Add private key used in end-to-end test into `TRADER_PK` in `.env` file. Note that account associated with the private key needs to hold sufficient assets specified in `test/config/deployment-test.json`, as well as have sufficient allowance of those assets to the `YakSwap` router contract.
