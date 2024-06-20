@@ -7,3 +7,6 @@
 [submodule "contracts/lib/solady"]
 	path = lib/solady
 	url = https://github.com/vectorized/solady
+[submodule "lib/suave-std"]
+	path = lib/suave-std
+	url = https://github.com/halo3mic/suave-std
